@@ -19,6 +19,8 @@ internal static class UpstreamApi
 
     private static MethodInfo _durationTicks;
     private static MethodInfo _complete;
+    private static MethodInfo _spawnRecoveredMaterials;
+    private static PropertyInfo _apocritonRequirementMet;
     private static bool _resolved;
 
     public static bool IsApocriton(ThingDef def)
@@ -91,9 +93,45 @@ internal static class UpstreamApi
         }
         _durationTicks = AccessTools.Method(type, "DurationTicks");
         _complete = AccessTools.Method(type, "Complete");
+        _spawnRecoveredMaterials = AccessTools.Method(type, "SpawnRecoveredMaterials");
+        _apocritonRequirementMet = AccessTools.Property(type, "ApocritonRequirementMet");
         if (_durationTicks == null || _complete == null)
         {
             Log.WarningOnce("[MechResonancePatch] MechScanResearch method signatures changed; some features may degrade", 0x4D525003);
+        }
+    }
+
+    /// <summary>
+    /// 连接器解析的完成路径：研究完成、材料回收、憎恶毒蜂配额均复用上游实现（反射），
+    /// 但信件换成本补丁自己的措辞（上游信件按裂解扫描仪场景撰写，不适合连接器解析）。
+    /// 反射不可用时回退到上游 Complete 整体调用（信件措辞退化为上游版本）。
+    /// </summary>
+    public static void CompleteViaAnalyzer(ThingDef mech, IntVec3 outputCell, Map map)
+    {
+        var project = DefDatabase<ResearchProjectDef>.GetNamedSilentFail(ProjectPrefix + mech.defName);
+        if (project == null || project.IsFinished)
+        {
+            return;
+        }
+        if (_spawnRecoveredMaterials == null || _apocritonRequirementMet == null)
+        {
+            // 降级：完整走上游 Complete（含上游信件）
+            Complete(mech, outputCell, map);
+            return;
+        }
+        bool quotaBefore = (bool)_apocritonRequirementMet.GetValue(null);
+        Find.ResearchManager.FinishProject(project, false, null, false);
+        _spawnRecoveredMaterials.Invoke(null, new object[] { mech, outputCell, map });
+        Find.LetterStack.ReceiveLetter(
+            "MRP_AnalysisCompletedTitle".Translate(mech.label),
+            "MRP_AnalysisCompletedText".Translate(mech.label),
+            LetterDefOf.PositiveEvent);
+        if (!quotaBefore && (bool)_apocritonRequirementMet.GetValue(null))
+        {
+            Find.LetterStack.ReceiveLetter(
+                "MR_ApocritonUnlockedTitle".Translate(),
+                "MR_ApocritonUnlockedText".Translate(),
+                LetterDefOf.PositiveEvent);
         }
     }
 

@@ -14,7 +14,7 @@ namespace MechResonancePatch;
 internal static class SubcoreScannerGatePatch
 {
     [HarmonyPriority(Priority.High)]
-    private static bool Prefix(Building_SubcoreScanner __instance, Pawn selPawn, ref AcceptanceReport __result)
+    private static bool Prefix(Building_SubcoreScanner __instance, [HarmonyArgument(0)] Pawn selPawn, ref AcceptanceReport __result)
     {
         if (!CompMechScan.IsActive(__instance))
         {

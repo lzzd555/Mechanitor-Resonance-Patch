@@ -30,10 +30,23 @@ public class WorkGiver_AnalyzerIngredients : WorkGiver_Scanner
             return false;
         }
         var comp = building.GetComp<CompNeuralAnalyzer>();
+        if (comp == null || !comp.Armed || comp.IngredientsLoaded)
+        {
+            return false;
+        }
         // 建筑保留检查：HaulToContainer 会保留连接器（maxPawns 1），
         // 缺此检查时其他小人会被反复派单并在保留处失败刷错。
-        return comp != null && comp.Armed && !comp.IngredientsLoaded &&
-            pawn.CanReserve(building) && IngredientJobFor(pawn, building) != null;
+        if (!pawn.CanReserve(building))
+        {
+            Log.WarningOnce($"[MRP诊断] 配料未齐但 {building.LabelShort} 的保留不可得（可能被其他搬运作业长期持有）。{comp.DebugState()}", 0x4D525101 + building.thingIDNumber);
+            return false;
+        }
+        if (IngredientJobFor(pawn, building) == null)
+        {
+            Log.WarningOnce($"[MRP诊断] 配料未齐但找不到可搬运的配料堆（检查地图上是否有足够的玻璃钢/高级零部件且可到达）。{comp.DebugState()}", 0x4D525202 + building.thingIDNumber);
+            return false;
+        }
+        return true;
     }
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -47,7 +60,12 @@ public class WorkGiver_AnalyzerIngredients : WorkGiver_Scanner
         {
             return null;
         }
-        return IngredientJobFor(pawn, building);
+        var job = IngredientJobFor(pawn, building);
+        if (job != null)
+        {
+            MRPLog.Message($"[MRP诊断] 搬运派单：{pawn.LabelShort} 搬 {job.targetA.Thing.def.defName} x{job.count} → {building.LabelShort}");
+        }
+        return job;
     }
 
     private static Job IngredientJobFor(Pawn pawn, Building_NeuralSynchronizer building)

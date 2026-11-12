@@ -17,4 +17,8 @@
   <MRP_AnalysisPlaceholderLabel>{0}解析记录</MRP_AnalysisPlaceholderLabel>
   <MRP_AnalysisPlaceholderDesc>该型号机械体的解析记录，由神经连接器完成解析后记录。</MRP_AnalysisPlaceholderDesc>
   <MRP_AlreadyAnalyzed>{0}的解析已完成，机械体已释放，未消耗材料。</MRP_AlreadyAnalyzed>
+  <MRP_AnalysisCompletedTitle>解析完成：{0}</MRP_AnalysisCompletedTitle>
+  <MRP_AnalysisCompletedText>{0}已通过神经连接器完成非破坏性解析。该型号的解析研究已经完成，更深的共鸣加强档位现已对其开放。</MRP_AnalysisCompletedText>
+  <MRP_DiagLoggingLabel>启用诊断日志</MRP_DiagLoggingLabel>
+  <MRP_DiagLoggingDesc>在玩家日志中输出 [MRP诊断] 行，用于排查问题；日常游戏建议关闭。</MRP_DiagLoggingDesc>
 </LanguageData>

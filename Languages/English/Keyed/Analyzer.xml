@@ -17,4 +17,8 @@
   <MRP_AnalysisPlaceholderLabel>{0} analysis record</MRP_AnalysisPlaceholderLabel>
   <MRP_AnalysisPlaceholderDesc>The analysis record of this mechanoid kind, compiled by the neural synchronizer.</MRP_AnalysisPlaceholderDesc>
   <MRP_AlreadyAnalyzed>Analysis of {0} was already completed; the mechanoid was released without consuming materials.</MRP_AlreadyAnalyzed>
+  <MRP_AnalysisCompletedTitle>Analysis complete: {0}</MRP_AnalysisCompletedTitle>
+  <MRP_AnalysisCompletedText>The {0} was analyzed through the neural synchronizer without harming it. Its analysis research has been completed and deeper resonance enhancements are now available for this mechanoid kind.</MRP_AnalysisCompletedText>
+  <MRP_DiagLoggingLabel>Enable diagnostic logs</MRP_DiagLoggingLabel>
+  <MRP_DiagLoggingDesc>Print [MRP诊断] lines to the player log for troubleshooting. Leave off during normal play.</MRP_DiagLoggingDesc>
 </LanguageData>

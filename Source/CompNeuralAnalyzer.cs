@@ -35,6 +35,13 @@ public class CompNeuralAnalyzer : ThingComp
     public int TicksRemaining;
     public int TotalDuration;
 
+    // 诊断：布防等待期间跟踪目标机械体的当前作业变化（不存档）
+    private string lastNotedJob;
+
+    // 自动入舱：右键浮菜单提供者对真实机械体的选择不生效（日志证实管线未调用），
+    // 配料齐备后改由建筑侧主动下令，等价于原版 SelectPawn 的 TryTakeOrderedJob。
+    private int nextAutoOrderTick;
+
     public CompProperties_NeuralAnalyzer Props => (CompProperties_NeuralAnalyzer)props;
 
     public Building_NeuralSynchronizer Building => (Building_NeuralSynchronizer)parent;
@@ -49,6 +56,13 @@ public class CompNeuralAnalyzer : ThingComp
     public bool IngredientsLoaded =>
         InContainer(ThingDefOf.Plasteel) >= Props.plasteelCost &&
         InContainer(ThingDefOf.ComponentSpacer) >= Props.advancedComponentCost;
+
+    /// <summary>诊断用状态快照（[MRP诊断] 日志）。</summary>
+    public string DebugState() =>
+        $"布防={Armed} 目标={SelectedMech?.LabelShort ?? "无"} 舱内={Building.Occupant?.LabelShort ?? "无"} " +
+        $"玻璃钢={InContainer(ThingDefOf.Plasteel)}/{Props.plasteelCost} " +
+        $"高级零部件={InContainer(ThingDefOf.ComponentSpacer)}/{Props.advancedComponentCost} " +
+        $"通电={Building.PowerOn} 运行={Running} 剩余={TicksRemaining}/{TotalDuration}tick";
 
     public int AnalysisDurationFor(ThingDef mechDef)
     {
@@ -77,12 +91,16 @@ public class CompNeuralAnalyzer : ThingComp
     {
         Armed = true;
         SelectedMech = mech;
+        lastNotedJob = null;
+        nextAutoOrderTick = 0;
         SynchronizerStateHelper.Neutralize(Building);
+        MRPLog.Message($"[MRP诊断] 布防解析：{mech.LabelShort}。{DebugState()}");
     }
 
     /// <summary>取消/中止：弹出舱内一切（机械体与未消耗配料一并退还）。</summary>
-    public void Disarm()
+    public void Disarm(string reason = null)
     {
+        MRPLog.Message($"[MRP诊断] 解除布防{(reason == null ? "" : $"（{reason}）")}。{DebugState()}");
         Armed = false;
         SelectedMech = null;
         TicksRemaining = 0;
@@ -95,9 +113,9 @@ public class CompNeuralAnalyzer : ThingComp
     }
 
     /// <summary>状态异常时的静默回退（同 Disarm，但保证建筑状态干净）。</summary>
-    public void SoftCancel()
+    public void SoftCancel(string reason = null)
     {
-        Disarm();
+        Disarm(reason == null ? "状态异常回退" : reason);
     }
 
     /// <summary>机械体已被建筑接收（TryAcceptPawn Postfix 调用），接管计时并中和上游实验状态。</summary>
@@ -106,6 +124,7 @@ public class CompNeuralAnalyzer : ThingComp
         TotalDuration = AnalysisDurationFor(mech.def);
         TicksRemaining = TotalDuration;
         SynchronizerStateHelper.Neutralize(Building);
+        MRPLog.Message($"[MRP诊断] {mech.LabelShort} 开始解析：总时长 {TotalDuration} tick（裂解 {TotalDuration / Props.durationFactor} × {Props.durationFactor}）");
     }
 
     public override void CompTick()
@@ -122,14 +141,41 @@ public class CompNeuralAnalyzer : ThingComp
             // 布防待入舱：选中的机械体失去资格则回退
             if (SelectedMech != null && (!SelectedMech.Spawned || SelectedMech.Dead || !CanAnalyze(SelectedMech)))
             {
-                SoftCancel();
+                SoftCancel($"布防目标 {SelectedMech.LabelShort} 失去资格（在场={SelectedMech.Spawned} 死亡={SelectedMech.Dead} 准入={CanAnalyze(SelectedMech)}）");
+            }
+            // 诊断：跟踪目标作业变化（作业被下达后是否立刻蒸发/被别的工作顶掉）
+            if (SelectedMech != null)
+            {
+                string jobDesc = SelectedMech.CurJobDef?.defName ?? "无作业";
+                if (jobDesc != lastNotedJob)
+                {
+                    lastNotedJob = jobDesc;
+                    MRPLog.Message($"[MRP诊断] 布防目标 {SelectedMech.LabelShort} 当前作业 → {jobDesc}（距连接器 {SelectedMech.Position.DistanceTo(parent.Position)} 格）");
+                }
+            }
+            // 配料齐备 → 自动下令入舱（仅在目标闲逛/待机且建筑可保留时，避免与玩家指令抢机械体）
+            if (IngredientsLoaded && Building.PowerOn && SelectedMech != null && CanAnalyze(SelectedMech)
+                && Find.TickManager.TicksGame >= nextAutoOrderTick && SelectedMech.CanReserve(Building))
+            {
+                string curJob = SelectedMech.CurJobDef?.defName;
+                bool idle = curJob == null || curJob == "Wait" || curJob == "Wait_Wander" || curJob == "GotoWander"
+                    || curJob == "Wait_MaintainPosture" || curJob == "SelfShutdown";
+                if (idle)
+                {
+                    nextAutoOrderTick = Find.TickManager.TicksGame + 600;
+                    SynchronizerStateHelper.Neutralize(Building);
+                    SynchronizerStateHelper.SelectPawnOn(Building, SelectedMech);
+                    Job enterJob = JobMaker.MakeJob(JobDefOf.EnterBuilding, parent);
+                    bool ordered = SelectedMech.jobs.TryTakeOrderedJob(enterJob, JobTag.Misc);
+                    MRPLog.Message($"[MRP诊断] 自动入舱下令：{SelectedMech.LabelShort}（下令前作业={curJob ?? "无"}），TryTakeOrderedJob={ordered}");
+                }
             }
             return;
         }
         if (occupant != SelectedMech)
         {
             // 不应发生（CanAcceptPawn 只放行 SelectedMech）
-            SoftCancel();
+            SoftCancel($"舱内 occupant {occupant.LabelShort} ≠ 布防目标 {SelectedMech?.LabelShort ?? "无"}");
             return;
         }
         if (!building.PowerOn)
@@ -147,16 +193,17 @@ public class CompNeuralAnalyzer : ThingComp
     {
         var def = mech.def;
         bool alreadyDone = UpstreamApi.IsResearched(def);
+        MRPLog.Message($"[MRP诊断] 解析倒计时结束：{mech.LabelShort}，研究已完成={alreadyDone}，开始完成流程");
         if (!alreadyDone)
         {
             ConsumeIngredients();
-            UpstreamApi.Complete(def, parent.InteractionCell, parent.Map);
+            UpstreamApi.CompleteViaAnalyzer(def, parent.InteractionCell, parent.Map);
         }
         else
         {
             Messages.Message("MRP_AlreadyAnalyzed".Translate(def.label), parent, MessageTypeDefOf.NeutralEvent, false);
         }
-        Disarm(); // EjectContents：存活机械体 + 超额配料弹出
+        Disarm("解析完成"); // EjectContents：存活机械体 + 超额配料弹出
     }
 
     private void ConsumeIngredients()
@@ -221,13 +268,14 @@ public class CompNeuralAnalyzer : ThingComp
                 defaultDesc = "MRP_CancelAnalysisDesc".Translate(),
                 icon = TexPool.Cancel,
                 activateSound = SoundDefOf.Tick_Tiny,
-                action = Disarm,
+                action = () => Disarm("手动取消"),
             };
-            if (Running && Prefs.DevMode && DebugSettings.ShowDevGizmos)
+            if (Armed && Prefs.DevMode && DebugSettings.ShowDevGizmos)
             {
                 yield return new Command_Action
                 {
-                    defaultLabel = "DEV: Finish analysis",
+                    defaultLabel = "DEV: 立即完成解析",
+                    defaultDesc = "将解析剩余时间置为 1 tick（机械体入舱后下一刻即完成）。",
                     icon = TexPool.Cancel,
                     action = () => TicksRemaining = 1,
                 };
