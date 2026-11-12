@@ -10,7 +10,7 @@ namespace MechResonancePatch;
 /// 生成项目后，它们反而会被放行进入裂解/差分扫描仪——这不符合设计（无配方机械体的解析
 /// 只应走神经连接器）。以更高优先级抢先拦截。
 /// </summary>
-[HarmonyPatch(typeof(Building_SubcoreScanner), "CanAcceptPawn")]
+[HarmonyPatch(typeof(Building_SubcoreScanner), "CanAcceptPawn", new[] { typeof(Pawn) })]
 internal static class SubcoreScannerGatePatch
 {
     [HarmonyPriority(Priority.High)]

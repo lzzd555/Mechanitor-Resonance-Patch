@@ -30,7 +30,10 @@ public class WorkGiver_AnalyzerIngredients : WorkGiver_Scanner
             return false;
         }
         var comp = building.GetComp<CompNeuralAnalyzer>();
-        return comp != null && comp.Armed && !comp.IngredientsLoaded && IngredientJobFor(pawn, building) != null;
+        // 建筑保留检查：HaulToContainer 会保留连接器（maxPawns 1），
+        // 缺此检查时其他小人会被反复派单并在保留处失败刷错。
+        return comp != null && comp.Armed && !comp.IngredientsLoaded &&
+            pawn.CanReserve(building) && IngredientJobFor(pawn, building) != null;
     }
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -40,7 +43,7 @@ public class WorkGiver_AnalyzerIngredients : WorkGiver_Scanner
             return null;
         }
         var comp = building.GetComp<CompNeuralAnalyzer>();
-        if (comp == null || !comp.Armed || comp.IngredientsLoaded)
+        if (comp == null || !comp.Armed || comp.IngredientsLoaded || !pawn.CanReserve(building))
         {
             return null;
         }

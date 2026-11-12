@@ -36,10 +36,11 @@ internal static class SynchronizerStateHelper
     }
 }
 
-/// <summary>本补丁的贴图缓存（复用上游/原版贴图路径，上游为硬依赖）。</summary>
+/// <summary>本补丁的贴图缓存（复用上游/原版贴图路径，上游为硬依赖；
+/// 须用上游公开版 1.1.0.0 实际存在的贴图，MR_SensoryFeedback 为新版才有的路径）。</summary>
 internal static class TexPool
 {
-    private static readonly CachedTexture AnalyzeMechPath = new("UI/Commands/NeuralSynchronizer/MR_SensoryFeedback");
+    private static readonly CachedTexture AnalyzeMechPath = new("UI/Commands/NeuralSynchronizer/MR_SensoryConnection");
     private static readonly CachedTexture CancelPath = new("UI/Designators/Cancel");
 
     public static Texture2D AnalyzeMech => AnalyzeMechPath.Texture;

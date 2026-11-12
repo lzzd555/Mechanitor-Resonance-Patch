@@ -19,9 +19,10 @@ internal static class AnalysisProjectGenerationPatch
     private const string TabDefName = "MR_MechAnalysis";
     private const string PlaceholderTexture = "Things/Item/MechAnalysisPlaceholder";
 
-    // 上游 Postfix 的优先级是 0；postfix 按优先级升序执行，默认 Normal(400) 晚于其运行。
-    // 双方生成均按 defName 幂等，任何顺序都会收敛。
-    [HarmonyPriority(Priority.Normal)]
+    // Harmony 3 对所有补丁（含 postfix）按优先级降序执行，且 Priority.Last==0：
+    // 上游 postfix 用 0（最低档），这里用 -1 确保晚于上游运行（先生成页签与配方类项目）。
+    // 双方生成均按 defName 幂等，页签缺失时本补丁自建同款，任何顺序都会收敛。
+    [HarmonyPriority(-1)]
     private static void Postfix(bool hotReload)
     {
         try
@@ -40,11 +41,21 @@ internal static class AnalysisProjectGenerationPatch
         {
             return;
         }
+        var content = MechResonancePatchMod.Content;
         var tab = DefDatabase<ResearchTabDef>.GetNamedSilentFail(TabDefName);
         if (tab == null)
         {
-            Log.WarningOnce("[MechResonancePatch] upstream MR_MechAnalysis research tab missing; project generation skipped", 0x4D525010);
-            return;
+            // 兜底：页签由上游在其 postfix 里按需创建；若本补丁先于上游运行则自建同款，
+            // 上游随后的 GetNamedSilentFail 会复用，两侧幂等。
+            tab = new ResearchTabDef
+            {
+                defName = TabDefName,
+                label = "MR_MechAnalysisTab".Translate(),
+                generalTitle = "MR_MechAnalysisTab".Translate(),
+                generalDescription = "MR_MechAnalysisTabDesc".Translate(),
+                modContentPack = content,
+            };
+            DefGenerator.AddImpliedDef(tab, hotReload);
         }
         var missing = DefDatabase<ThingDef>.AllDefs
             .Where(def => def.race != null && def.race.IsMechanoid
@@ -56,7 +67,6 @@ internal static class AnalysisProjectGenerationPatch
             .ToList();
         if (missing.Count > 0)
         {
-            var content = MechResonancePatchMod.Content;
             var usedIds = new HashSet<int>(DefDatabase<ThingDef>.AllDefs
                 .SelectMany(def => def.comps?.OfType<CompProperties_CompAnalyzableUnlockResearch>() ?? Enumerable.Empty<CompProperties_CompAnalyzableUnlockResearch>())
                 .Select(comp => comp.analysisID));

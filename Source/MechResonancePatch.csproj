@@ -8,9 +8,9 @@
     <Nullable>disable</Nullable>
     <DebugType>portable</DebugType>
     <!-- 本机路径；换机器时改这里（或用环境变量覆盖） -->
-    <GameDir>$(HOME)/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorld.app/Contents/MacOS</GameDir>
-    <HarmonyDll>$(HOME)/Library/Application Support/Steam/steamapps/workshop/content/294100/2009463077/1.7/Assemblies/0Harmony.dll</HarmonyDll>
-    <ResonanceDll>$(HOME)/Library/Application Support/Steam/steamapps/workshop/content/294100/3807734021/1.7/Assemblies/MechResonance.dll</ResonanceDll>
+    <GameDir>D:\Steam\steamapps\common\RimWorld</GameDir>
+    <HarmonyDll>D:\Steam\steamapps\workshop\content\294100\2009463077\1.7\Assemblies\0Harmony.dll</HarmonyDll>
+    <ResonanceDll>D:\Steam\steamapps\workshop\content\294100\3807734021\1.7\Assemblies\MechResonance.dll</ResonanceDll>
   </PropertyGroup>
 
   <ItemGroup>

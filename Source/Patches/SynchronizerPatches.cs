@@ -8,8 +8,10 @@ namespace MechResonancePatch;
 /// <summary>
 /// 解析模式布防时接管准入：只放行选中的机械体（原版入口要求"玩家方人形机械师"，
 /// 机械体必被拒）；其余 Pawn（包括想做实验的机械师）在布防期间一律拒绝，防止状态交叠。
+/// 必须指定参数类型：上游 1.1.0.0 存在 private CanAcceptPawn(Pawn, int) 重载，
+/// 不指定会导致 AmbiguousMatchException 并中断整个 PatchAll。
 /// </summary>
-[HarmonyPatch(typeof(Building_NeuralSynchronizer), "CanAcceptPawn")]
+[HarmonyPatch(typeof(Building_NeuralSynchronizer), "CanAcceptPawn", new[] { typeof(Pawn) })]
 internal static class SynchronizerCanAcceptPatch
 {
     private static bool Prefix(Building_NeuralSynchronizer __instance, Pawn selPawn, ref AcceptanceReport __result)

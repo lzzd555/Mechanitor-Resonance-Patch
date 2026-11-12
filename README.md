@@ -42,7 +42,7 @@ dotnet build
 
 `MechResonancePatch.csproj` 顶部有三个本机路径（游戏程序集、Harmony、上游 DLL），换机器时按注释修改。构建成功后自动把 DLL 拷贝到 `../1.7/Assemblies/`。
 
-- 上游依赖版本：mjcg.mechresonance **1.1.3**（反射访问其 internal 类型，上游更新大版本后需复核）。
+- 上游依赖版本：mjcg.mechresonance 工坊公开版（DLL 1.1.0.0，2026-10-13）已适配。反射访问其 internal 类型；上游更新后需复核：`CanAcceptPawn` 重载结构、`MR_MechAnalysis` 页签生成时机、`UI/Commands/NeuralSynchronizer/` 贴图名。
 
 ## 许可
 

@@ -1,49 +1,51 @@
 # 环境记录（rimworld-setup，2026-11-12）
 
+> 2026-11-12 自 macOS 迁移至 Windows 机器后重验，本文件取代旧记录（macOS 版见 git 历史）。工程已实现完整补丁并作首次发布（commit 9874756）。
+
 ## 目标工程
 
-- Mechanitor-Resonance-Patch，空工程（无任何内容/约定）。
-- 制作目标版本**未确认**；本机仅 1.7 安装，环境按 1.7 准备。制作目标不得从安装推断，待任务确认。
+- Mechanitor-Resonance-Patch：RimWorld **1.7** C# 补丁 mod（About.xml 仅声明 1.7）。
+- 依赖：Harmony（brrainz.harmony）+ [DR] Mechanitor: Resonance（mjcg.mechresonance）。
+- 制作目标与本机安装版本一致（1.7），非从安装推断。
 
-## 已验证能力（三层）
+## 已验证能力（Windows 本机，三层）
 
 ### 安装层
 
 | 组件 | 版本/路径 | 状态 |
 | --- | --- | --- |
-| Python | 3.14.7 `/opt/homebrew/bin/python3` | 可用 |
-| .NET SDK + runtime | 10.0.404（SDK）；NETCore/AspNetCore 10.0.15 | 可用 |
-| RimWorld（Steam macOS） | 1.7.5005 rev1082，2026-11-12 当日更新 | 可用 |
+| Python | 3.12.10（PATH） | 可用 |
+| .NET SDK / runtime | 10.0.402 / NETCore 10.0.13 | 可用（csproj 目标 net10.0） |
+| PowerShell | 5.1.22621.4391 | 可用（本工程无 preflight 脚本，备用） |
+| RimWorld（Steam Win） | 1.7.5005 rev1082，`D:\Steam\steamapps\common\RimWorld` | 可用 |
+| 主程序集 | Assembly-CSharp.dll **1.7.9810.32479**、UnityStubs.dll，均在游戏根 | 可用（1.7 根目录布局契约） |
 | DLC 数据 | Core/Royalty/Ideology/Biotech/Anomaly/Odyssey 齐全 | 可用 |
-| pwsh/powershell | 未安装 | 缺失（本工程无 `tools/preflight.ps1`，当前不需要） |
+| 0Harmony | workshop 2009463077 `1.7\Assemblies\0Harmony.dll`，文件版本 3.0.0.0 | 可用 |
+| 上游 MechResonance | workshop 3807734021 `1.7\Assemblies\MechResonance.dll`，文件版本 1.1.0.0 | 可用（见复核点） |
 
-游戏根：`~/Library/Application Support/Steam/steamapps/common/RimWorld`
-引擎布局（1.7 新原生引擎，非 Unity）：程序集在 `RimWorld.app/Contents/MacOS/`（与 `MacOS/x64/` 两份，`Assembly-CSharp.dll` 哈希一致）。**无 0Harmony.dll**；有 `UnityStubs.dll`、`Waylith.UnityCompat.dll`、`RimWorldWaylith.PrepatcherCompat.dll`。
+Steam 库仅 `D:\Steam`（libraryfolders.vdf 单库）。
 
-### 数据层（实测查询验证）
+### 构建接线（csproj 本机路径）
 
-- `lookup.py def`：经 `--game-root .local/game-root-view` 实测，`ThingDef:Bed` 命中（源文件+哈希）。身份绑定 1.7.5005 rev1082 / gameSha256 `82387f78…f125`。
-- `lookup.py type`：元数据索引已建（Assembly-CSharp 1.7.9810.32479），`RimWorld.Pawn_MechanitorTracker` 命中。
-- 索引缓存：`.local/lookup`（同 DLL 指纹可复用）。
+- `Source/MechResonancePatch.csproj` 三个 HintPath 已改为 Windows 路径（游戏根 / 0Harmony 1.7 / 上游 MechResonance 1.7），2026-11-13 实跑 `dotnet build` 通过（0 警告 0 错误），DLL 自动落位 `1.7\Assemblies\`。
 
-### macOS 布局适配
+### 部署位
 
-- `.local/game-root-view/`：符号链接视图（`Version.txt`、`Assembly-CSharp.dll`→`RimWorld.app/Contents/MacOS/`、`Data`→游戏根 `Data`）。lookup 脚本按 1.7 契约要求程序集在游戏根，macOS 实际在 bundle 内，此视图桥接。游戏本体未改动。
+- 游戏根 `Mods\` 存在且已有本地 mod（本机实际使用的本地 mod 位）。
+- `%USERPROFILE%\…\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios\Mods` 不存在。
 
-## 缺口（按需补，不阻塞 XML 制作）
+## 缺口与复核点
 
-- **0Harmony**：游戏与本地均无。若做 C# Harmony 补丁，需按实际上游引用获取对应 Harmony 包（catalog verify 对 harmony 项报 not_covered 属预期）。
-- **RimSearcher**：未安装（运行时 Def 查询；其 .NET 10 runtime 前置已具备）。
-- **DecompilerServer / ILSpy**：未安装（方法体/源码缓存；按需再备）。
-- **RimSage MCP**：本客户端未接入。
-- **1.6**：无安装。若需双版本制作需另装。
-- **用户级 Mods 目录**：`~/Library/Application Support/RimWorld/Mods` 不存在；游戏根 `Mods/` 为空。部署测试副本时再建。
+- **上游版本**：工坊公开版即 DLL 1.1.0.0（2026-10-13，acf 与文件一致）；README 旧记的 1.1.3 为开发机另一份副本，注记已更正。补丁反射上游 internal 类型，上游更新后需复核：`CanAcceptPawn` 重载、页签生成时机、`UI/Commands/NeuralSynchronizer/` 贴图名。
+- RimSearcher / DecompilerServer / RimSage MCP：本机均未接入（本次用 ilspycmd 11.2 反编译取证，装于 `%USERPROFILE%\.dotnet\tools`）；按需再备。
+- 1.6：本机无安装；本工程仅面向 1.7，不需要。
 
 ## 画像注意
 
-技能包 1.7 画像基线为 1.7.4977 rev1248，落后本机 1.7.5005 rev1082（当日更新）。同大版本内不阻断 `lookup.py` 实查（证据绑定本机 DLL 哈希）；`catalog.py verify` 报 stale 属预期。
+- 技能包 1.7 画像基线 1.7.4977 rev1248；本机 1.7.5005 rev1082，同大版本，不阻断实查（证据绑定本机文件）。
+- 主程序集 1.7.9810.32479 与前机一致 → 前机建立的反射/元数据结论在本机仍适用。
 
 ## 检查点
 
-- 环境就绪：XML 查证/制作可直接开始；DLL 元数据查证可用。
-- 下一动作：与用户确认制作目标（版本、XML 补丁或 C#、上游 mod"Resonance"具体指什么）后再进入需求/计划，不由 setup 代替。
+- 环境就绪：XML/C# 制作、构建、部署全链路可用（2026-11-13 实跑验证）。
+- 2026-11-13 修复会话：适配上游工坊公开版 1.1.0.0 的四处漂移（`CanAcceptPawn` 重载、Harmony 3 postfix 降序致页签缺失、`MR_SensoryConnection` 贴图、WorkGiver CanReserve）；证据为 Player.log 783/3373/42370/43934 行 + 反编译缓存 `%TEMP%\mr-decompile`。**待游戏内复验**。
