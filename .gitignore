@@ -1,0 +1,11 @@
+# 构建产物中间目录（DLL 由构建自动落位到 1.7/Assemblies/）
+Source/bin/
+Source/obj/
+
+# 本地工具缓存：上游 DLL 反编译源码、ilspycmd、查证索引等，不得分发
+.local/
+
+.DS_Store
+
+# 本地会话/IDE 文件
+.zcode/

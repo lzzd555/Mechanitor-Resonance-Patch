@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <MRP_AnalyzeMechLabel>Analyze mechanoid</MRP_AnalyzeMechLabel>
+  <MRP_AnalyzeMechDesc>Begin resonance analysis of a mechanoid kind.\n\nRequires {0} plasteel and {1} advanced components delivered into the synchronizer, then have the mechanoid enter. The analysis takes {2}x the destructive scan duration. The mechanoid survives and is released afterwards.</MRP_AnalyzeMechDesc>
+  <MRP_CancelAnalysisLabel>Cancel analysis</MRP_CancelAnalysisLabel>
+  <MRP_CancelAnalysisDesc>Abort the analysis mode. The occupant and any unloaded materials will be ejected and returned.</MRP_CancelAnalysisDesc>
+  <MRP_AnalysisProgress>{0} analysis: {1} remaining</MRP_AnalysisProgress>
+  <MRP_AnalysisWaiting>Waiting for {0} to enter</MRP_AnalysisWaiting>
+  <MRP_AnalysisIngredients>Materials: plasteel {0}/{1}, advanced components {2}/{3}</MRP_AnalysisIngredients>
+  <MRP_WaitingIngredients>Waiting for analysis materials to be delivered…</MRP_WaitingIngredients>
+  <MRP_EnterAnalyzerLabel>Enter synchronizer for analysis ({0})</MRP_EnterAnalyzerLabel>
+  <MRP_AnalysisInProgress>Analysis in progress</MRP_AnalysisInProgress>
+  <MRP_AnalysisArmed>Analysis mode is being prepared</MRP_AnalysisArmed>
+  <MRP_NoAnalyzableMechs>There are no mechanoids eligible for analysis.</MRP_NoAnalyzableMechs>
+  <MRP_ScannerRequiresRecipe>Mechanoids without a gestation recipe cannot use subcore scanners. Analyze this kind in a neural synchronizer instead.</MRP_ScannerRequiresRecipe>
+  <MRP_AnalysisProjectDesc>Resonance analysis of the {0}.\n\nThis project cannot be researched at a bench. Deliver the materials to a neural synchronizer and have the mechanoid enter it to complete a non-destructive analysis (about {1} hours).</MRP_AnalysisProjectDesc>
+  <MRP_AnalysisPlaceholderLabel>{0} analysis record</MRP_AnalysisPlaceholderLabel>
+  <MRP_AnalysisPlaceholderDesc>The analysis record of this mechanoid kind, compiled by the neural synchronizer.</MRP_AnalysisPlaceholderDesc>
+  <MRP_AlreadyAnalyzed>Analysis of {0} was already completed; the mechanoid was released without consuming materials.</MRP_AlreadyAnalyzed>
+</LanguageData>

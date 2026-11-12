@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- 解析模式配料搬运：镜像上游 MR_HaulApocritonCorpse 的 HaulToBase 挂法 -->
+  <WorkGiverDef ParentName="HaulToBase">
+    <defName>MRP_HaulAnalyzerIngredients</defName>
+    <label>haul analysis materials</label>
+    <giverClass>MechResonancePatch.WorkGiver_AnalyzerIngredients</giverClass>
+  </WorkGiverDef>
+</Defs>

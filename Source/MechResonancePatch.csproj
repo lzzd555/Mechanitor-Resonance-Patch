@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>MechResonancePatch</AssemblyName>
+    <RootNamespace>MechResonancePatch</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <DebugType>portable</DebugType>
+    <!-- 本机路径；换机器时改这里（或用环境变量覆盖） -->
+    <GameDir>$(HOME)/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorld.app/Contents/MacOS</GameDir>
+    <HarmonyDll>$(HOME)/Library/Application Support/Steam/steamapps/workshop/content/294100/2009463077/1.7/Assemblies/0Harmony.dll</HarmonyDll>
+    <ResonanceDll>$(HOME)/Library/Application Support/Steam/steamapps/workshop/content/294100/3807734021/1.7/Assemblies/MechResonance.dll</ResonanceDll>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(GameDir)/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>$(GameDir)/UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(HarmonyDll)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="MechResonance">
+      <HintPath>$(ResonanceDll)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- 构建后直接落位 mod 的 1.7/Assemblies -->
+  <Target Name="DeployToMod" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(MSBuildThisFileDirectory)../1.7/Assemblies/" />
+    <Message Text="Deployed $(TargetFileName) to 1.7/Assemblies/" Importance="high" />
+  </Target>
+
+</Project>
