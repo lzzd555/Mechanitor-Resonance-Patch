@@ -48,5 +48,23 @@
 
 ## 风险与维护
 
-- 反射目标绑定 mjcg.mechresonance 1.1.3；上游更新若改名/改签名 → `UpstreamApi` 降级（DurationTicks 回退本地表；Complete 缺失则报错日志），需复核。
+- 反射目标绑定 mjcg.mechresonance 1.1.0.0（工坊公开版）；上游更新若改名/改签名 → `UpstreamApi` 降级（DurationTicks 回退本地表；Complete 缺失则报错日志），需复核。
 - Harmony 补丁参数名（selPawn/pawn/hotReload）与上游/vanilla 一致性为运行时绑定，已在 Mod ctor PatchAll 时即时报错。
+
+## 增量记录：专属「解析机械体」图标与补丁封面（2026-11-13）
+
+### 1. 已查证上游参考规格（来源：工坊 `3807734021`）
+
+| 参考文件 | 实测规格 | 视觉特征 |
+| --- | --- | --- |
+| `Textures/UI/Commands/NeuralSynchronizer/MR_SensoryConnection.png` | `256 × 256`，8-bit RGBA，透明背景 | 粗深褐黑描边（`#26251c`），右侧冷灰蓝机械体头部（`#8d9ea1`），左侧橄榄绿人像与顶部连接管（`#8e8c60`），中间两条黄绿信号波纹（`#b6b576`） |
+| `About/preview.png` | `1280 × 720`，8-bit RGB | 暗红背景机械师冥想主视觉，左侧机械体、右侧三只大型机械体，左下脑机徽标 + 银白黑边标题 `MECHANITOR: RESONANCE` |
+
+### 2. 产物落地与验证记录（资源模式：混合）
+
+| 资源项 | 消费者 / 加载位置 | 实际文件与 SHA256 | 实测规格 | 状态 |
+| --- | --- | --- | --- | --- |
+| 神经连接器「解析机械体」Gizmo 图标 | `CompNeuralAnalyzer.CompGetGizmosExtra` → `TexPool.AnalyzeMech`（`SynchronizerStateHelper.cs` 绑定 `UI/Commands/NeuralSynchronizer/MRP_AnalyzeMech`） | `Textures/UI/Commands/NeuralSynchronizer/MRP_AnalyzeMech.png`<br>SHA256：`b19ca50f843493f64ebb9c2bc07759fec5c762c861efb49f426c3405b6b93429` | `256 × 256`，8-bit RGBA，真实透明背景（`38053/65536` 透明像素） | 已生成、已导入且容器已检查、已视觉检查、**已绑定 C# 并重编落位 `1.7/Assemblies/MechResonancePatch.dll`**（0 警告 0 错误，DLL SHA256 `5c925094…5e3a`；未游戏验证） |
+| 模组预览封面 | RimWorld Mod 列表与工坊封面 | `About/Preview.png`<br>SHA256：`d21142e9809e5c1d8ffb8084928e00869e277ddca4ce898ef683408592c10c10` | `1280 × 720`，8-bit RGB PNG | 已生成、已导入且容器已检查、已视觉检查、已落位加载路径（未游戏验证） |
+
+
