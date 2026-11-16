@@ -1,4 +1,6 @@
-# [LZZD] Mechanitor Resonance: Universal Mech Analysis
+# Mechanitor Resonance: Universal Mech Analysis
+
+> [![Steam Workshop](https://img.shields.io/badge/Steam_Workshop-3840878087-blue)](https://steamcommunity.com/sharedfiles/filedetails/?id=3840878087)
 
 RimWorld 1.7 补丁 mod，修复 **[DR] Mechanitor: Resonance**（mjcg.mechresonance）中"没有培育配方的机械体永远无法获得基础共鸣以上加强"的问题。
 

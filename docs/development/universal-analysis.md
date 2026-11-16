@@ -2,7 +2,7 @@
 
 ## 概览
 
-- 本工程 = 补丁 mod `[LZZD] Mechanitor Resonance: Universal Mech Analysis`（packageId `lzzd.mechresonance.universalanalysis`），仅 1.7。
+- 本工程 = 补丁 mod `Mechanitor Resonance: Universal Mech Analysis`（packageId `lzzd.mechresonance.universalanalysis`），仅 1.7。2026-11-13 去掉展示名前缀 `[LZZD]`（packageId 不变，存档识别不受影响）。
 - 上游：mjcg.mechresonance v1.1.3（workshop 3807734021，1.7 DLL 反编译于 `.local/decomp-1.7`）+ brrainz.harmony。
 - 构建入口：`Source/MechResonancePatch.csproj`（`dotnet build` 自动落位 `1.7/Assemblies/MechResonancePatch.dll`）。
 - 部署：`~/Library/Application Support/RimWorld/Mods/MechResonancePatch` → 本项目根（符号链接）；测试 mod `MRP-TestMechNoRecipe`（`/Users/lzzd/project/MRP-TestMechNoRecipe`，含无配方测试机械体 Mech_TestNoRecipe）同法链接，**不随补丁分发**。
