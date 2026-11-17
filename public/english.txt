@@ -1,0 +1,10 @@
+Mechanitor Resonance: Universal Mech Analysis
+
+[h1]Universal Mech Analysis for Mechanitor: Resonance[/h1]
+Every mechanoid kind gets its analysis research project — including recipe-less mechs from other mods: bosses, raid-only units, unique joiners.
+[list]
+[*]Recipe-less mechs stay barred from subcore scanners, preserving upstream behavior.
+[*]New analysis mode on the Neural Synchronizer: 200 plasteel + 3 advanced components, takes 2x the destructive scan duration. Non-destructive — the mechanoid survives.
+[*]Completing it unlocks upstream resonance buffs and the Apocriton analysis quotas for every mech kind.
+[/list]
+[b]Requires:[/b] RimWorld 1.7 + Biotech + Harmony + [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3807734021]Mechanitor: Resonance[/url]
