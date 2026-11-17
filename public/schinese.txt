@@ -8,3 +8,4 @@
 [*]解析完成后，上游的共鸣加强档位与憎恶毒蜂解析配额对它们全部生效。
 [/list]
 [b]需求：[/b] RimWorld 1.7 + Biotech + Harmony + [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3807734021]Mechanitor: Resonance[/url]
+[b]源码与问题反馈：[/b] [url=https://github.com/lzzd555/Mechanitor-Resonance-Patch]GitHub[/url]

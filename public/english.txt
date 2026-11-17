@@ -8,3 +8,4 @@ Every mechanoid kind gets its analysis research project — including recipe-les
 [*]Completing it unlocks upstream resonance buffs and the Apocriton analysis quotas for every mech kind.
 [/list]
 [b]Requires:[/b] RimWorld 1.7 + Biotech + Harmony + [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3807734021]Mechanitor: Resonance[/url]
+[b]Source & issues:[/b] [url=https://github.com/lzzd555/Mechanitor-Resonance-Patch]GitHub[/url]
